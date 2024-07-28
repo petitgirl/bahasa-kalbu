@@ -1,51 +1,39 @@
-const encryptionMap = {
-        '4': 'A', '8': 'B', '(': 'C', '|)': 'D', '3': 'E', '|=': 'F', '6': 'G', '#': 'H', '1': 'I', 
-        '_|': 'J', '|<': 'K', '1_': 'L', '/\/\ ': 'M', '/\/': 'N', '0': 'O', '|D': 'P', '(,)': 'Q', 
-        '|2': 'R', '5': 'S', '+': 'T', '|_': 'U', '\/': 'V', '\/\/': 'W', '><': 'X', '`/': 'Y', '2': 'Z',
-        '4': 'a', '8': 'b', '(': 'c', '|)': 'd', '3': 'e', '|=': 'f', '6': 'g', '#': 'h', '1': 'i', 
-        '_|': 'j', '|<': 'k', '1_': 'l', '/\/\ ': 'm', '/\/': 'n', '0': 'o', '|D': 'p', '(,)': 'q', 
-        '|2': 'r', '5': 's', '+': 't', '|_': 'u', '\/': 'v', '\/\/': 'w', '><': 'x', '`/': 'y', '2': 'z'
-};
+        const substitution = {
+            'A': '4', 'B': '8', 'C': '(', 'D': '|)', 'E': '3', 'F': '|=', 'G': '6', 'H': '#', 'I': '1', 
+            'J': '_|', 'K': '|<', 'L': '1_', 'M': '/\\/\\', 'N': '/\\/', 'O': '0', 'P': '|D', 'Q': '(,)', 
+            'R': '|2', 'S': '5', 'T': '+', 'U': '|_', 'V': '\\/', 'W': '\\/\\/', 'X': '><', 'Y': '`/', 'Z': '2',
+            'a': '4', 'b': '8', 'c': '(', 'd': '|)', 'e': '3', 'f': '|=', 'g': '6', 'h': '#', 'i': '1', 
+            'j': '_|', 'k': '|<', 'l': '1_', 'm': '/\\/\\', 'n': '/\\/', 'o': '0', 'p': '|D', 'q': '(,)', 
+            'r': '|2', 's': '5', 't': '+', 'u': '|_', 'v': '\\/', 'w': '\\/\\/', 'x': '><', 'y': '`/', 'z': '2'
+        };
 
-const decryptionMap = Object.fromEntries(
-  Object.entries(encryptionMap).map(([key, value]) => [value, key])
-);
+        const reverseSubstitution = Object.fromEntries(Object.entries(substitution).map(([k, v]) => [v, k]));
 
-function encrypt(text) {
-  return text.split('').map(char => encryptionMap[char] || char).join('');
-}
+        function encryptText() {
+            const inputText = document.getElementById('inputText').value;
+            let encryptedText = '';
+            for (let char of inputText) {
+                encryptedText += substitution[char] || char;
+            }
+            document.getElementById('outputText').value = encryptedText;
+        }
 
-function decrypt(text) {
-  let decryptedText = '';
-  let i = 0;
-
-  while (i < text.length) {
-    let found = false;
-    for (const [encChar, decChar] of Object.entries(decryptionMap)) {
-      if (text.slice(i, i + encChar.length) === encChar) {
-        decryptedText += decChar;
-        i += encChar.length;
-        found = true;
-        break;
-      }
-    }
-    if (!found) {
-      decryptedText += text[i];
-      i++;
-    }
-  }
-
-  return decryptedText;
-}
-
-function encryptText() {
-  const inputText = document.getElementById('inputText').value;
-  const encryptedText = encrypt(inputText);
-  document.getElementById('outputText').value = encryptedText;
-}
-
-function decryptText() {
-  const inputText = document.getElementById('inputText').value;
-  const decryptedText = decrypt(inputText);
-  document.getElementById('outputText').value = decryptedText;
-}
+        function decryptText() {
+            const inputText = document.getElementById('inputText').value;
+            let decryptedText = '';
+            let skip = 0;
+            for (let i = 0; i < inputText.length; i++) {
+                if (skip > 0) {
+                    skip--;
+                    continue;
+                }
+                const twoChar = inputText.substring(i, i + 2);
+                if (reverseSubstitution[twoChar]) {
+                    decryptedText += reverseSubstitution[twoChar];
+                    skip = 1;
+                } else {
+                    decryptedText += reverseSubstitution[inputText[i]] || inputText[i];
+                }
+            }
+            document.getElementById('outputText').value = decryptedText;
+        }
